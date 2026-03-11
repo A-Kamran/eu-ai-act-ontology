@@ -1,1 +1,5 @@
-
+ Extract key regulatory entities from the EU AI Act related to:
+- AI system categories
+- actors
+- regulatory obligations
+Return them as candidate ontology classes and relations.
