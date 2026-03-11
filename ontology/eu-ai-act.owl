@@ -1,1 +1,392 @@
+@prefix : <http://example.org/eu-ai-act#> .
+@prefix org: <http://www.w3.org/ns/org#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix prov: <http://www.w3.org/ns/prov-o#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@base <http://example.org/eu-ai-act#EUAIActOntology> .
 
+<http://example.org/eu-ai-act#EUAIActOntology> rdf:type owl:Ontology ;
+                                                rdfs:comment "A lightweight, proof-of-concept ontology modelling core concepts of the EU AI Act including AI systems, risk categories, actors, prohibited practices, and regulatory obligations." ;
+                                                rdfs:creator "Amna Binte Kamran" ;
+                                                rdfs:date "2026" ;
+                                                rdfs:label "EU AI Act Ontology (Proof of Concept)" ;
+                                                owl:versionInfo "v0.1" .
+
+#################################################################
+#    Annotation properties
+#################################################################
+
+###  http://example.org/eu-ai-act#hasArticleReference
+:hasArticleReference rdf:type owl:AnnotationProperty ;
+                     rdfs:comment "Reference to the corresponding article of the EU AI Act." ;
+                     rdfs:label "Article Reference" .
+
+
+###  http://example.org/eu-ai-act#hasRiskLevel
+:hasRiskLevel rdf:type owl:AnnotationProperty .
+
+
+###  http://www.w3.org/2000/01/rdf-schema#creator
+rdfs:creator rdf:type owl:AnnotationProperty .
+
+
+###  http://www.w3.org/2000/01/rdf-schema#date
+rdfs:date rdf:type owl:AnnotationProperty .
+
+
+###  http://www.w3.org/2002/07/owl#equivalentClass
+owl:equivalentClass rdf:type owl:AnnotationProperty .
+
+
+#################################################################
+#    Object Properties
+#################################################################
+
+###  http://example.org/eu-ai-act#appliesToSystem
+:appliesToSystem rdf:type owl:ObjectProperty ;
+                 rdfs:domain :Obligation ;
+                 rdfs:range :AI_System ;
+                 rdfs:comment "Indicates which AI systems an obligation applies to." ;
+                 rdfs:label "applies to system" .
+
+
+###  http://example.org/eu-ai-act#deployedBy
+:deployedBy rdf:type owl:ObjectProperty ;
+            rdfs:domain :AI_System ;
+            rdfs:range :Deployer ;
+            rdfs:comment "Links an AI system to the entity responsible for its operational use." ;
+            rdfs:label "deployed by" .
+
+
+###  http://example.org/eu-ai-act#developedBy
+:developedBy rdf:type owl:ObjectProperty ;
+             rdfs:domain :AI_System ;
+             rdfs:range :Provider ;
+             rdfs:comment "Links an AI system to the provider responsible for its development." ;
+             rdfs:label "developed by" .
+
+
+###  http://example.org/eu-ai-act#hasActor
+:hasActor rdf:type owl:ObjectProperty ;
+          rdfs:domain :AI_System ;
+          rdfs:range :Actor ;
+          rdfs:comment "Links an AI system to the responsible actors." ;
+          rdfs:label "has actor" .
+
+
+###  http://example.org/eu-ai-act#hasObligation
+:hasObligation rdf:type owl:ObjectProperty ;
+               rdfs:domain :Actor ;
+               rdfs:range :Obligation ;
+               rdfs:label "has obligation" .
+
+
+###  http://example.org/eu-ai-act#hasRiskCategory
+:hasRiskCategory rdf:type owl:ObjectProperty ;
+                 rdfs:domain :AI_System ;
+                 rdfs:range :Risk_Category ;
+                 rdfs:comment "Associates an AI system with its regulatory risk classification." ;
+                 rdfs:label "has risk category" .
+
+
+###  http://example.org/eu-ai-act#imposesObligation
+:imposesObligation rdf:type owl:ObjectProperty ;
+                   rdfs:domain :Actor ;
+                   rdfs:range :Obligation ;
+                   rdfs:comment "Specifies which obligations an actor must fulfill." ;
+                   rdfs:label "imposes obligation" .
+
+
+###  http://example.org/eu-ai-act#mustComplyWith
+:mustComplyWith rdf:type owl:ObjectProperty ;
+                rdfs:domain :Provider ;
+                rdfs:range :Obligation ;
+                rdfs:comment "Indicates regulatory requirements applicable to an AI provider." ;
+                rdfs:label "must comply with" .
+
+
+###  http://example.org/eu-ai-act#prohibitsPractice
+:prohibitsPractice rdf:type owl:ObjectProperty ;
+                   rdfs:domain :Unacceptable_Risk ;
+                   rdfs:range :Prohibited_AI_Practice ;
+                   rdfs:label "prohibits practice" .
+
+
+###  http://example.org/eu-ai-act#requiresArtifact
+:requiresArtifact rdf:type owl:ObjectProperty ;
+                  rdfs:domain :Obligation ;
+                  rdfs:range :Compliance_Artifact .
+
+
+###  http://example.org/eu-ai-act#triggersObligation
+:triggersObligation rdf:type owl:ObjectProperty .
+
+:mustComplyWith
+    owl:propertyChainAxiom (
+        :hasRiskCategory
+        :triggersObligation
+    ) .
+
+#################################################################
+#    Data properties
+#################################################################
+
+###  http://example.org/eu-ai-act#regulatedByArticle
+:regulatedByArticle rdf:type owl:DatatypeProperty ;
+                    rdfs:range rdfs:Literal .
+
+
+#################################################################
+#    Classes
+#################################################################
+
+###  http://example.org/eu-ai-act#AI_System
+:AI_System rdf:type owl:Class ;
+           rdfs:subClassOf <http://www.w3.org/ns/prov#Entity> ,
+                           [ rdf:type owl:Restriction ;
+                             owl:onProperty :hasRiskCategory ;
+                             owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                             owl:onClass :Risk_Category
+                           ] ;
+           rdfs:comment "Software system generating predictions, recommendations, or decisions as defined in the EU AI Act." ;
+           rdfs:label "AI System" .
+
+
+###  http://example.org/eu-ai-act#Actor
+:Actor rdf:type owl:Class ;
+       rdfs:subClassOf <http://www.w3.org/ns/prov#Agent> ;
+       rdfs:comment "Entity participating in the lifecycle of an AI system." ;
+       rdfs:label "Actor" .
+
+
+###  http://example.org/eu-ai-act#Compliance_Artifact
+:Compliance_Artifact rdf:type owl:Class .
+
+
+###  http://example.org/eu-ai-act#Data_Governance
+:Data_Governance rdf:type owl:Class ;
+                 rdfs:subClassOf :Obligation ;
+                 rdfs:comment "Requirements regarding training data quality and governance." ;
+                 rdfs:label "Data Governance" .
+
+
+###  http://example.org/eu-ai-act#Deployer
+:Deployer rdf:type owl:Class ;
+          rdfs:subClassOf :Actor ;
+          rdfs:comment "An entity that uses an AI system within an operational environment." ;
+          rdfs:label "Deployer" .
+
+
+###  http://example.org/eu-ai-act#Distributor
+:Distributor rdf:type owl:Class ;
+             rdfs:subClassOf :Actor ,
+                             org:Organization ;
+             rdfs:label "Distributor" .
+
+
+###  http://example.org/eu-ai-act#High_Risk
+:High_Risk rdf:type owl:Class ;
+           rdfs:subClassOf :Risk_Category ,
+                           [ rdf:type owl:Restriction ;
+                             owl:onProperty :triggersObligation ;
+                             owl:someValuesFrom :Obligation
+                           ] ;
+           owl:disjointWith :Limited_Risk ,
+                            :Minimal_Risk ,
+                            :Unacceptable_Risk .
+
+
+###  http://example.org/eu-ai-act#Human_Oversight
+:Human_Oversight rdf:type owl:Class ;
+                 rdfs:subClassOf :Obligation .
+
+
+###  http://example.org/eu-ai-act#Importer
+:Importer rdf:type owl:Class ;
+          rdfs:subClassOf :Actor ;
+          rdfs:label "Importer" .
+
+
+###  http://example.org/eu-ai-act#Limited_Risk
+:Limited_Risk rdf:type owl:Class ;
+              rdfs:subClassOf :Risk_Category ;
+              owl:disjointWith :Minimal_Risk ,
+                               :Unacceptable_Risk .
+
+
+###  http://example.org/eu-ai-act#Market_Surveillance_Authority
+:Market_Surveillance_Authority rdf:type owl:Class ;
+                               rdfs:subClassOf :Actor ,
+                                               org:Organization ;
+                               rdfs:comment "Market surveillance or competent authority regulating AI systems." .
+
+
+###  http://example.org/eu-ai-act#Minimal_Risk
+:Minimal_Risk rdf:type owl:Class ;
+              rdfs:subClassOf :Risk_Category ;
+              owl:disjointWith :Unacceptable_Risk ;
+              rdfs:comment "AI systems with minimal are subject to minimal regulatory obligations." ;
+              rdfs:label "Minimal Risk AI" .
+
+
+###  http://example.org/eu-ai-act#Obligation
+:Obligation rdf:type owl:Class ;
+            rdfs:comment "Requirements/Legal obligations imposed on actors involved in developing or deploying AI systems imposed by the EU AI Act." ;
+            rdfs:label "Regulatory Obligation" .
+
+
+###  http://example.org/eu-ai-act#Prohibited_AI_Practice
+:Prohibited_AI_Practice rdf:type owl:Class ;
+                        rdfs:comment "Specific application or use of AI that may be regulated or prohibited." ;
+                        rdfs:label "Prohibited AI Practice" .
+
+
+###  http://example.org/eu-ai-act#Provider
+:Provider rdf:type owl:Class ;
+          rdfs:subClassOf :Actor ,
+                          org:Organization ;
+          rdfs:comment "Entity developing or placing an AI system on the market." ;
+          rdfs:label "Provider" .
+
+
+###  http://example.org/eu-ai-act#RealTime_Biometric_Identification
+:RealTime_Biometric_Identification rdf:type owl:Class ;
+                                   rdfs:subClassOf :Prohibited_AI_Practice ;
+                                   rdfs:label "Real-time Biometric Identification" .
+
+
+###  http://example.org/eu-ai-act#Risk_Category
+:Risk_Category rdf:type owl:Class ;
+               rdfs:comment "Risk-based classification of AI systems under the EU AI Act." ;
+               rdfs:label "Risk Category" .
+
+
+###  http://example.org/eu-ai-act#Risk_Management_System
+:Risk_Management_System rdf:type owl:Class ;
+                        rdfs:subClassOf :Obligation .
+
+
+###  http://example.org/eu-ai-act#Social_Scoring
+:Social_Scoring rdf:type owl:Class ;
+                rdfs:subClassOf :Prohibited_AI_Practice ;
+                rdfs:label "Social Scoring System" .
+
+
+###  http://example.org/eu-ai-act#Subliminal_Manipulation
+:Subliminal_Manipulation rdf:type owl:Class ;
+                         rdfs:subClassOf :Prohibited_AI_Practice ;
+                         rdfs:label "Subliminal Manipulation" .
+
+
+###  http://example.org/eu-ai-act#Technical_Documentation
+:Technical_Documentation rdf:type owl:Class ;
+                         rdfs:subClassOf :Compliance_Artifact ,
+                                         dcterms:BibliographicResource ;
+                         :hasArticleReference "Article 11" ;
+                         rdfs:comment "Requirement to maintain technical documentation (Art. 11)." ;
+                         rdfs:label "Technical Documentation" .
+
+
+###  http://example.org/eu-ai-act#Transparency_Requirement
+:Transparency_Requirement rdf:type owl:Class ;
+                          rdfs:subClassOf :Obligation ;
+                          :hasArticleReference "Article 13" ;
+                          rdfs:comment "Requirement to provide transparency information (Art. 13)." ;
+                          rdfs:label "Transparency Requirement" .
+
+
+###  http://example.org/eu-ai-act#Unacceptable_Risk
+:Unacceptable_Risk rdf:type owl:Class ;
+                   rdfs:subClassOf :Risk_Category ;
+                   rdfs:label "Unacceptable Risk AI" .
+
+
+###  http://purl.org/dc/terms/BibliographicResource
+dcterms:BibliographicResource rdf:type owl:Class .
+
+
+###  http://www.w3.org/ns/org#Organization
+org:Organization rdf:type owl:Class .
+
+
+###  http://www.w3.org/ns/prov#Agent
+<http://www.w3.org/ns/prov#Agent> rdf:type owl:Class .
+
+
+###  http://www.w3.org/ns/prov#Entity
+<http://www.w3.org/ns/prov#Entity> rdf:type owl:Class .
+
+
+#################################################################
+#    Individuals
+#################################################################
+
+###  http://example.org/eu-ai-act#ExampleProvider
+:ExampleProvider rdf:type owl:NamedIndividual ,
+                          :Provider ;
+                 :hasObligation :Risk_Management_System ;
+                 rdfs:label "Example AI Provider" .
+
+
+###  http://example.org/eu-ai-act#FacialRecognitionSystem
+:FacialRecognitionSystem rdf:type owl:NamedIndividual ,
+                                  :AI_System ;
+                         :developedBy :ExampleProvider ;
+                         :hasActor :ExampleProvider ;
+                         :hasRiskCategory :High_Risk ;
+                         rdfs:comment "Example high-risk AI system used for biometric identification." ;
+                         rdfs:label "Facial Recognition System" .
+
+
+###  http://example.org/eu-ai-act#High_Risk
+:High_Risk rdf:type owl:NamedIndividual ;
+           :triggersObligation :Human_Oversight ,
+                               :Risk_Management_System .
+
+
+###  http://example.org/eu-ai-act#Human_Oversight
+:Human_Oversight rdf:type owl:NamedIndividual .
+
+
+###  http://example.org/eu-ai-act#Limited_Risk
+:Limited_Risk rdf:type owl:NamedIndividual .
+
+
+###  http://example.org/eu-ai-act#OpenChatbot
+:OpenChatbot rdf:type owl:NamedIndividual ,
+                      :AI_System ;
+             :hasRiskCategory :Limited_Risk ;
+             rdfs:label "Open Domain Chatbot" .
+
+
+###  http://example.org/eu-ai-act#Risk_Management_System
+:Risk_Management_System rdf:type owl:NamedIndividual .
+
+
+#################################################################
+#    Annotations
+#################################################################
+
+:High_Risk rdfs:label "High Risk AI" ;
+           rdfs:comment "AI systems classified as high-risk under the EU AI Act (Annex III). AI systems considered to pose significant risks to safety or fundamental rights are therefore subject to strict regulatory obligations." .
+
+
+:Human_Oversight rdfs:comment "Requirement to ensure appropriate human oversight (Art. 14)." ;
+                 :hasArticleReference "Article 14" ;
+                 rdfs:label "Human Oversight" .
+
+
+:Limited_Risk rdfs:comment "AI systems with moderate risk require transparency obligations." ;
+              rdfs:label "Limited Risk AI" .
+
+
+:Risk_Management_System rdfs:label "Risk Management System" ;
+                        :hasArticleReference "Article 9" ;
+                        rdfs:comment "Continuous risk management process required for high-risk AI systems." .
+
+
+###  Generated by the OWL API (version 4.5.9.2019-02-01T07:24:44Z) https://github.com/owlcs/owlapi
