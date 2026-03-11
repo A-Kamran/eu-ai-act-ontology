@@ -1,1 +1,1 @@
-
+Generate competency questions that an ontology modelling the EU AI Act should answer.
